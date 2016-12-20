@@ -20,7 +20,8 @@ public class PlayerSight : MonoBehaviour {
             lookTimer += Time.deltaTime;
             if (lookTimer >= lookTime)
             {
-                unitychanAnimationControll.IsLooked = true;
+                unitychanAnimationControll.OnMouseDown();
+                //unitychanAnimationControll.IsLooked = true;
                 lookTimer = 0.0f;
             }
         }

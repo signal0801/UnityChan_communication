@@ -27,6 +27,10 @@ public class UnitychanAnimationControll : MonoBehaviour
     State state;
     bool isEndRotate = true;
 
+    public void OnMouseDown()
+    {
+        isLooked = true;
+    }
     // Use this for initialization
     void Start()
     {
