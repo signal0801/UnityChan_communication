@@ -1,33 +1,65 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerSight : MonoBehaviour {
+public delegate void UserLookUnityChan (float duration);
+public delegate void UserLookOutUnityChan ();
+
+public class PlayerSight : MonoBehaviour
+{
     float distance = 10.0f;
-    float lookTimer = 0.0f;
+    [SerializeField]
     float lookTime = 1.5f;
     public UnitychanAnimationControll unitychanAnimationControll;
     public LayerMask characterLayer;
-	// Use this for initialization
-	void Start () {
-	    
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        Vector3 forwardDirection = transform.TransformDirection(Vector3.forward);
-        if (Physics.Raycast(transform.position,forwardDirection,distance,characterLayer))
-        {
-            lookTimer += Time.deltaTime;
-            if (lookTimer >= lookTime)
-            {
-                unitychanAnimationControll.OnMouseDown();
-                //unitychanAnimationControll.IsLooked = true;
-                lookTimer = 0.0f;
+
+    /// <summary>
+    /// ユーザーの注視点にUnityちゃんが一定時間居たら発火する
+    /// </summary>
+    public event UserLookUnityChan UserLookUnityChan;
+
+    /// <summary>
+    /// ユーザーがUnityちゃんの注視を外したら呼び出される
+    /// </summary>
+    public event UserLookOutUnityChan UserLookOutUnityChanEvent;
+
+    // Use this for initialization
+    void Start ()
+    {
+        StartCoroutine ("CO_MonitorLookUnityChan");
+    }
+
+    /// <summary>
+    /// 無限ループでUnityちゃんをトラッキングし続けるコルーチン
+    /// </summary>
+    /// <returns>The o_ monitor look unity chan.</returns>
+    IEnumerator CO_MonitorLookUnityChan ()
+    {
+        while (true) {
+
+            yield return null;
+
+            if (Physics.Raycast (transform.position, transform.forward, distance, characterLayer)) {
+                StartCoroutine("CO_StartLookingUnityChan");
+            } else {
+                StopCoroutine ("CO_StartLookingUnityChan");
+                Debug.Log ("Fire UserLookOutUnityChanEvent");
+                if (UserLookOutUnityChanEvent != null) {
+                    UserLookOutUnityChanEvent ();
+                }
             }
+
         }
-        else
-        {
-            unitychanAnimationControll.IsLooked = false;
+
+    }
+
+    IEnumerator CO_StartLookingUnityChan()
+    {
+        yield return new WaitForSeconds (lookTime);
+
+        Debug.Log ("Fire UserLookUnityChan");
+        if (UserLookUnityChan != null) {
+            UserLookUnityChan (lookTime);
         }
-	}
+    }
+
 }
