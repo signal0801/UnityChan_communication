@@ -7,18 +7,17 @@ public class UnitychanAnimationControll : MonoBehaviour
 	Animator animator;
 	AudioSource audiosource;
 	bool isLooked = false;
-	public bool IsLooked { get { return isLooked; }
-		set { isLooked = value; } }
+
+	public bool IsLooked { get { return isLooked; } set { isLooked = value; } }
+
 	float speed = 50.0f;
 	float normalTimer = 0.0f;
 	float normalInterval = 15.0f;
 	float signTimer = 0.0f;
 	float signInterval = 6.5f;
-
 	public AudioClip voice_Yes;
 	public AudioClip voice_Syukkin;
 	public AudioClip voice_ok;
-
 	/// <summary>
 	/// ユーザーのカメラのゲームオブジェクト
 	/// </summary>
@@ -27,67 +26,65 @@ public class UnitychanAnimationControll : MonoBehaviour
 
 	enum State
 	{
-		NORMAL, WAVE, RUN, SIGN
+		NORMAL,
+		WAVE,
+		RUN,
+		SIGN
 	}
+
 	State state;
 	bool isEndRotate = true;
 
-	public void OnMouseDown()
+	public void OnMouseDown ()
 	{
 		isLooked = true;
 	}
 	// Use this for initialization
-	void Start()
+	void Start ()
 	{
-		animator = GetComponent<Animator>();
-		audiosource = GetComponent<AudioSource>();
+		animator = GetComponent<Animator> ();
+		audiosource = GetComponent<AudioSource> ();
 	}
-
 	// Update is called once per frame
-	void Update()
+	void Update ()
 	{
-		animInfo = animator.GetCurrentAnimatorStateInfo(0);
-		switch (state)
-		{
+		animInfo = animator.GetCurrentAnimatorStateInfo (0);
+		switch (state) {
 		case State.NORMAL:
-			Normal();
+			Normal ();
 			break;
 		case State.WAVE:
 			//Wave();
 			break;
 		case State.RUN:
-			Run();
+			Run ();
 			break;
 		case State.SIGN:
-			Sign();
+			Sign ();
 			break;
 		}
 	}
 
-	void Normal()
+	void Normal ()
 	{
-		if (isLooked)
-		{
-			animator.SetTrigger("sign");
+		if (isLooked) {
+			animator.SetTrigger ("sign");
 			audiosource.clip = voice_Yes;
-			audiosource.Play();
+			audiosource.Play ();
 			state = State.SIGN;
-		}
-		else if (normalTimer >= normalInterval && !isLooked)
-		{
-			int rand = Random.Range(0, 2);
-			switch (rand)
-			{
+		} else if (normalTimer >= normalInterval && !isLooked) {
+			int rand = Random.Range (0, 2);
+			switch (rand) {
 			case 0:
-				animator.SetTrigger("wave");
+				animator.SetTrigger ("wave");
 				audiosource.clip = voice_ok;
-				audiosource.Play();
+				audiosource.Play ();
 				state = State.WAVE;
 				break;
 			case 1:
-				animator.SetBool("run", true);
+				animator.SetBool ("run", true);
 				audiosource.clip = voice_Syukkin;
-				audiosource.Play();
+				audiosource.Play ();
 				state = State.RUN;
 				break;
 			}
@@ -96,7 +93,7 @@ public class UnitychanAnimationControll : MonoBehaviour
 		normalTimer += Time.deltaTime;
 	}
 
-	public void EndWave()
+	public void EndWave ()
 	{/*	
         if (animInfo.IsName("Base Layer.WaveHands") && animInfo.normalizedTime < 1.0f)
         {
@@ -109,7 +106,7 @@ public class UnitychanAnimationControll : MonoBehaviour
 	/// <summary>
 	/// Playerの目の前に移動する
 	/// </summary>
-	void Run()
+	void Run ()
 	{
 		// ユーザーの目の前の座標
 		Vector3 offset = userGameObject.transform.forward * 5.0f;
@@ -122,10 +119,10 @@ public class UnitychanAnimationControll : MonoBehaviour
 		// MoveTowardsで移動させる
 		transform.position = 
 			Vector3.MoveTowards (
-				transform.position,
-				destination,
-				Time.deltaTime * 5.0f
-			);
+			transform.position,
+			destination,
+			Time.deltaTime * 5.0f
+		);
 
 		float diff = (destination - transform.position).magnitude;
 		// 目的地の誤差が0.1f以内だったら
@@ -136,30 +133,27 @@ public class UnitychanAnimationControll : MonoBehaviour
 		}
 	}
 
-	void OnTriggerExit(Collider other)
+	void OnTriggerExit (Collider other)
 	{
-		if (isEndRotate && state == State.RUN)
-		{
+		if (isEndRotate && state == State.RUN) {
 			isEndRotate = false;
 		}
 	}
 
-	void OnTriggerEnter(Collider other)
+	void OnTriggerEnter (Collider other)
 	{
-		if (!isEndRotate && state == State.RUN)
-		{
+		if (!isEndRotate && state == State.RUN) {
 			isEndRotate = true;
 			state = State.NORMAL;
-			animator.SetBool("run", false);
-			Debug.Log("Exit");
+			animator.SetBool ("run", false);
+			Debug.Log ("Exit");
 		}
 	}
 
-	void Sign()
+	void Sign ()
 	{
 		signTimer += Time.deltaTime;
-		if (signTimer >= signInterval)
-		{
+		if (signTimer >= signInterval) {
 			state = State.NORMAL;
 			signTimer = 0.0f;
 		}
